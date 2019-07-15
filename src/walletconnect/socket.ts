@@ -96,8 +96,8 @@ class SocketTransport {
 
   // -- private ---------------------------------------------------------- //
 
-  private _socketOpen() {
-    if (this._initiating) {
+  private _socketOpen(forceOpen?: boolean) {
+    if ((typeof forceOpen !== "undefined" && !forceOpen) || this._initiating) {
       return;
     }
 
@@ -129,7 +129,7 @@ class SocketTransport {
     };
 
     socket.onclose = () => {
-      this._socketOpen();
+      this._socketOpen(true);
     };
   }
 
