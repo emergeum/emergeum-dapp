@@ -89,9 +89,7 @@ function getEth() {
 }
 
 async function getAccounts() {
-  const asd = await getEth().getAccounts();
-  console.log(asd)
-  return asd;
+  return getEth().getAccounts();
 }
 
 function initWalletConnectProvider(rpcUrl: string) {
@@ -192,8 +190,6 @@ export async function getAssetsRegistry() {
     const provider = getProvider();
     const [address] = await getAccounts();
 
-    console.log(address);
-
     const registry = await factory.registries(address);
 
     if (isNullAddress(registry)) {
@@ -215,8 +211,6 @@ export async function getAssetsRegistryFactory() {
     const instance = contract(AssetsRegistryFactory);
     const provider = getProvider();
     const [address] = await getAccounts();
-
-    console.log(address)
 
     instance.defaults({ from: address });
     instance.setProvider(provider);
