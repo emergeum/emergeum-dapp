@@ -10,6 +10,7 @@ import Wrapper from "./components/Wrapper";
 import Modal from "./components/Modal";
 import Header from "./components/Header";
 import Loader from "./components/Loader";
+import BackupAddresses from "./containers/BackupAddresses";
 import { fonts } from "./styles";
 import {
   apiGetAccountAssets,
@@ -508,6 +509,7 @@ class App extends React.Component<any, any> {
             ) : (
               <SBalances>
                 <Banner />
+                <BackupAddresses />
                 <h3>Actions</h3>
                 <Column center>
                   <SEmergencyButtonContainer>

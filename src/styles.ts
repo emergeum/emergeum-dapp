@@ -119,12 +119,6 @@ export const globalStyle = `
             box-shadow: none;
   }
 
-  [tabindex] {
-    outline: none;
-    width: 100%;
-    height: 100%;
-  }
-
   a, p, h1, h2, h3, h4, h5, h6 {
   	text-decoration: none;
   	margin: 0;

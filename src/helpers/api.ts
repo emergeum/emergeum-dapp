@@ -220,9 +220,10 @@ export async function getAssetsRegistryFactory() {
   return assetsRegistryFactory;
 }
 
-export async function createRegistry(map = {}) {
+export async function createRegistry(data: any) {
   const factory = await getAssetsRegistryFactory();
-  const [tickers, addresses] = Object.entries(map).reduce(([tickerAcc, addressAcc], [ticker, address]) => [[...tickerAcc, utils.fromAscii(ticker)], [...addressAcc, utils.fromAscii(address as string)]], [[], []]);
+  // @ts-ignore
+  const [tickers, addresses] = data.reduce(([tickerAcc, addressAcc], { ticker, address }) => [[...tickerAcc, utils.fromAscii(ticker)], [...addressAcc, utils.fromAscii(address as string)]], [[], []])
 
   await factory.newRegistry(tickers, addresses);
 }
@@ -236,11 +237,27 @@ export async function getTickers() {
 
   const [tickers, addresses] = await Promise.all([
     registry.getTickers(),
-    registry.getReserveAddresses(),
+    registry.getBackupAddresses(),
   ]);
 
-  return tickers.reduce((acc: any, ticker: any, index: number) => ({
-    ...acc,
-    [utils.toAscii(ticker)]: utils.toAscii(addresses[index]),
-  }), {});
+  return tickers.reduce((acc: any, ticker: any, index: number) => [...acc, {
+    ticker: utils.toAscii(ticker),
+    address: utils.toAscii(addresses[index])
+  }], []);
+}
+
+export async function setTicker(ticker: string, address: string) {
+  const registry = await getAssetsRegistry();
+
+  if (registry) {
+    return registry.setAsset(utils.fromAscii(ticker), utils.fromAscii(address));
+  }
+}
+
+export async function deleteTicker(ticker: string) {
+  const registry = await getAssetsRegistry();
+
+  if (registry) {
+    return registry.deleteAsset(utils.fromAscii(ticker));
+  }
 }
