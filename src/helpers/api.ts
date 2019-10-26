@@ -185,16 +185,13 @@ export const apiGetGasPrices = async (): Promise<IGasPrices> => {
 };
 
 export async function getAssetsRegistry() {
-  if (assetsRegistry === undefined) {
+  if (!assetsRegistry) {
     const factory = await getAssetsRegistryFactory();
     const provider = getProvider();
     const [address] = await getAccounts();
-
     const registry = await factory.registries(address);
 
-    if (isNullAddress(registry)) {
-      assetsRegistry = null;
-    } else {
+    if (!isNullAddress(registry)) {
       const instance = contract(AssetsRegistry);
 
       instance.defaults({ from: address });

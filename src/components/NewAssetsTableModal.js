@@ -24,7 +24,7 @@ const NewAssetsTableModal = (props) => {
             aria-labelledby="draggable-dialog-title"
         >
             <DialogContent>
-                <div style={{ width: "100%" }}>
+                <div style={{ width: "510px" }}>
                     <MaterialTable
                         options={{
                             search: false
