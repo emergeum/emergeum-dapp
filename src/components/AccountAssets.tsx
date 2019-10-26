@@ -4,25 +4,17 @@ import AssetRow from "./AssetRow";
 import { IAssetData } from "../helpers/types";
 
 const AccountAssets = (props: any) => {
-  const { assets, chainId } = props;
-  const defaultNativeCurrency: IAssetData =
-    chainId === 118
-      ? {
-          contractAddress: "",
-          symbol: "Cosmos",
-          name: "Atom",
-          decimals: "18",
-          balance: "0"
-        }
-      : {
-          contractAddress: "",
-          name: "Ethereum",
-          symbol: "ETH",
-          decimals: "18",
-          balance: "0"
-        };
+  const { assets } = props;
+  const defaultNativeCurrency: IAssetData = {
+    contractAddress: "",
+    name: "Ethereum",
+    symbol: "ETH",
+    decimals: "18",
+    balance: "0"
+  };
 
   let nativeCurrency: IAssetData = defaultNativeCurrency;
+  console.log("===1: " + nativeCurrency.balance); // tslint:disable-line
   let tokens: IAssetData[] = [];
   if (assets && assets.length) {
     const filteredNativeCurrency = assets.filter((asset: IAssetData) =>
@@ -34,6 +26,7 @@ const AccountAssets = (props: any) => {
       filteredNativeCurrency && filteredNativeCurrency.length
         ? filteredNativeCurrency[0]
         : defaultNativeCurrency;
+    console.log("===2: " + nativeCurrency.balance); // tslint:disable-line
     tokens = assets.filter((asset: IAssetData) =>
       asset && asset.symbol
         ? asset.symbol.toLowerCase() !== nativeCurrency.symbol.toLowerCase()
