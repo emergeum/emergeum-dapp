@@ -304,7 +304,7 @@ class App extends React.Component<any, any> {
   public toggleModal = () =>
     this.setState({ showModal: !this.state.showModal });
 
-  public testSendTransaction = async () => {
+  public transfer = async () => {
     const { walletConnector, address, chainId } = this.state;
 
     if (!walletConnector) {
@@ -720,8 +720,8 @@ class App extends React.Component<any, any> {
                 <h3>Actions</h3>
                 <Column center>
                   <SEmergencyButtonContainer>
-                    <SEmergencyButton left onClick={this.testSendTransaction}>
-                      {"eth_sendTransaction"}
+                    <SEmergencyButton left onClick={this.transfer}>
+                      {"Transfer"}
                     </SEmergencyButton>
                   </SEmergencyButtonContainer>
                 </Column>
