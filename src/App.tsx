@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Account } from "@trustwallet/types/src/Account";
 import styled from "styled-components";
 import WalletConnect from "@trustwallet/walletconnect"
 import WalletConnectQRCodeModal from "@walletconnect/qrcode-modal";
@@ -144,6 +145,7 @@ interface IAppState {
   address: string;
   result: any | null;
   assets: IAssetData[];
+  allAddresses: Account[];
 }
 
 const INITIAL_STATE: IAppState = {
@@ -157,7 +159,8 @@ const INITIAL_STATE: IAppState = {
   accounts: [],
   address: "",
   result: null,
-  assets: []
+  assets: [],
+  allAddresses: []
 };
 
 class App extends React.Component<any, any> {
@@ -209,6 +212,7 @@ class App extends React.Component<any, any> {
         throw error;
       }
 
+      console.log('===== payload.params.length' + payload.params.length); // tslint:disable-line
       const { chainId, accounts } = payload.params[0];
       this.onSessionUpdate(accounts, chainId);
     });
@@ -236,15 +240,25 @@ class App extends React.Component<any, any> {
     if (walletConnector.connected) {
       const { chainId, accounts } = walletConnector;
       const address = accounts[0];
+      const allAddresses: Account[] = [];
+      walletConnector.getAccounts().then(result => { const arr: Account[] = []; // tslint:disable-line
+        result.forEach(function (value) { if (value.network === 60 || value.network === 118) { arr.push(value); } // tslint:disable-line
+        });  // tslint:disable-line
+        this.setState({ // tslint:disable-line
+          allAddresses: arr // tslint:disable-line
+        }); // tslint:disable-line
+      }).catch(error => { console.error(error); });  // tslint:disable-line
       this.setState({
         connected: true,
         chainId,
         accounts,
-        address
+        address,
+        allAddresses
       });
     }
 
     this.setState({ walletConnector });
+    console.log(this.state.allAddresses); // tslint:disable-line
   };
 
   public killSession = async () => {
@@ -313,6 +327,7 @@ class App extends React.Component<any, any> {
     // to
     const to = address;
 
+    // walletConnector.getAccounts().then(result => { result.forEach(function (value) { if (value.network === 60 || value.network === 118) { console.log('address: ' + value.address + ' network: ' + value.network); } }); }).catch(error => { console.error(error); });  // tslint:disable-line
     // nonce
     const _nonce = await apiGetAccountNonce(address, chainId);
     const nonce = sanitizeHex(convertStringToHex(_nonce));
@@ -460,7 +475,8 @@ class App extends React.Component<any, any> {
       fetching,
       showModal,
       pendingRequest,
-      result
+      result,
+      allAddresses
     } = this.state;
     return (
       <SLayout>
@@ -510,6 +526,10 @@ class App extends React.Component<any, any> {
                     </SContainer>
                   </Column>
                 )}
+                <h6>Network {allAddresses && allAddresses.length && allAddresses[0].network}</h6>
+                <h6>Address {allAddresses && allAddresses.length && allAddresses[0].address}</h6>
+                <h6>Network {allAddresses && allAddresses.length && allAddresses[1].network}</h6>
+                <h6>Address {allAddresses && allAddresses.length && allAddresses[1].address}</h6>
               </SBalances>
             )}
           </SContent>

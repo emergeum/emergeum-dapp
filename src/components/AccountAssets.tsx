@@ -6,11 +6,11 @@ import { IAssetData } from "../helpers/types";
 const AccountAssets = (props: any) => {
   const { assets, chainId } = props;
   const defaultNativeCurrency: IAssetData =
-    chainId === 100
+    chainId === 118
       ? {
           contractAddress: "",
-          symbol: "xDAI",
-          name: "xDAI",
+          symbol: "Cosmos",
+          name: "Atom",
           decimals: "18",
           balance: "0"
         }
