@@ -31,13 +31,16 @@
     "@walletconnect/qrcode-modal": "^1.0.0-beta.37",
     "axios": "^0.18.0",
     "bignumber.js": "^8.0.2",
+    "emergeum-assets-registry": "https://github.com/decenterlab/emergeum-assets-registry.git",
     "ethereumjs-util": "^6.1.0",
     "prop-types": "^15.6.2",
     "qr-image": "^3.2.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-scripts-ts": "3.1.0",
-    "styled-components": "4.2.0"
+    "styled-components": "4.2.0",
+    "truffle-contract": "^4.0.31",
+    "web3-utils": "^1.2.2"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",

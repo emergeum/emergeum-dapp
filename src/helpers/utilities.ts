@@ -155,3 +155,5 @@ export function recoverPersonalSignature(sig: string, msg: string): string {
   const signer = recoverPublicKey(sig, hash);
   return signer;
 }
+
+export const isNullAddress = (address: string) => !parseInt(address, 16);
