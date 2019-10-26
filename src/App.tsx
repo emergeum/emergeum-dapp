@@ -118,7 +118,7 @@ const SValue = styled.div`
   font-family: monospace;
 `;
 
-const STestButtonContainer = styled.div`
+const SEmergencyButtonContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
@@ -126,7 +126,8 @@ const STestButtonContainer = styled.div`
   flex-wrap: wrap;
 `;
 
-const STestButton = styled(Button)`
+const SEmergencyButton = styled(Button)`
+  background-color: red;
   border-radius: 8px;
   font-size: ${fonts.size.medium};
   height: 44px;
@@ -699,7 +700,7 @@ class App extends React.Component<any, any> {
             {!address && !assets.length ? (
               <SLanding center>
                 <h3>
-                  {`Try out WalletConnect`}
+                  {`Try out Emergeum`}
                   <br />
                   <span>{`v${process.env.REACT_APP_VERSION}`}</span>
                 </h3>
@@ -709,7 +710,7 @@ class App extends React.Component<any, any> {
                     onClick={this.walletConnectInit}
                     fetching={fetching}
                   >
-                    {"Connect to WalletConnect"}
+                    {"Connect to Emergeum"}
                   </SConnectButton>
                 </SButtonContainer>
               </SLanding>
@@ -718,31 +719,11 @@ class App extends React.Component<any, any> {
                 <Banner />
                 <h3>Actions</h3>
                 <Column center>
-                  <STestButtonContainer>
-                    <STestButton left onClick={this.testSendTransaction}>
+                  <SEmergencyButtonContainer>
+                    <SEmergencyButton left onClick={this.testSendTransaction}>
                       {"eth_sendTransaction"}
-                    </STestButton>
-
-                    <STestButton left onClick={this.testSignTransaction}>
-                      {"eth_signTransaction"}
-                    </STestButton>
-
-                    <STestButton disabled left onClick={this.testCustomRequest}>
-                      {"Custom Request"}
-                    </STestButton>
-
-                    <STestButton left onClick={this.testSignMessage}>
-                      {"eth_sign"}
-                    </STestButton>
-
-                    <STestButton left onClick={this.testSignPersonalMessage}>
-                      {"personal_sign"}
-                    </STestButton>
-
-                    <STestButton disabled left onClick={this.testSignTypedData}>
-                      {"eth_signTypedData"}
-                    </STestButton>
-                  </STestButtonContainer>
+                    </SEmergencyButton>
+                  </SEmergencyButtonContainer>
                 </Column>
                 <h3>Balances</h3>
                 {!fetching ? (

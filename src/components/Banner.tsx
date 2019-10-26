@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import banner from "../assets/walletconnect-banner.png";
+import banner from "../assets/emergeum.png";
 
 const SBannerWrapper = styled.div`
   display: flex;
@@ -9,8 +9,8 @@ const SBannerWrapper = styled.div`
 `;
 
 const SBanner = styled.div`
-  width: 275px;
-  height: 45px;
+  width: 278px;
+  height: 63px;
   background: url(${banner}) no-repeat;
   background-size: cover;
   background-position: center;

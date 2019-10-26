@@ -1,15 +1,16 @@
 {
-  "name": "walletconnect-example-dapp",
-  "version": "1.0.0-beta.37",
+  "name": "emergeum",
+  "version": "0.0.1-beta",
   "private": true,
   "keywords": [
+    "emergeum",
     "walletconnect",
     "ethereum",
     "web3",
     "crypto"
   ],
-  "author": "WalletConnect <walletconnect.org>",
-  "homepage": "https://walletconnect.org",
+  "author": "Emergeum team",
+  "homepage": "https://github.com/decenterlab/emergeum",
   "license": "LGPL-3.0",
   "scripts": {
     "start": "react-scripts-ts start",
@@ -19,12 +20,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/walletconnect/walletconnect-example-dapp.git"
+    "url": "git+https://github.com/decenterlab/emergeum.git"
   },
   "bugs": {
-    "url": "https://github.com/walletconnect/walletconnect-example-dapp/issues"
+    "url": "https://github.com/decenterlab/emergeum/issues"
   },
   "dependencies": {
+    "@trustwallet/walletconnect": "^0.1.16",
     "@walletconnect/browser": "^1.0.0-beta.37",
     "@walletconnect/qrcode-modal": "^1.0.0-beta.37",
     "axios": "^0.18.0",
