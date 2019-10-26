@@ -104,7 +104,25 @@ export async function getAssetsRegistryFactory() {
 
 export async function createRegistry(map = {}) {
   const factory = await getAssetsRegistryFactory();
-  const [tickers, addresses] = Object.entries(map).reduce(([tickerAcc, addressAcc], [ticker, address]) => [[...tickerAcc, utils.fromAscii(ticker)], [...addressAcc, utils.fromAscii(address)]], [[], []]);
+  const [tickers, addresses] = Object.entries(map).reduce(([tickerAcc, addressAcc], [ticker, address]) => [[...tickerAcc, utils.fromAscii(ticker)], [...addressAcc, utils.fromAscii(address as string)]], [[], []]);
 
   await factory.newRegistry(tickers, addresses);
+}
+
+export async function getTickers() {
+  const registry = await getAssetsRegistry();
+
+  if (!registry) {
+    return null;
+  }
+
+  const [tickers, addresses] = await Promise.all([
+    registry.getTickers(),
+    registry.getReserveAddresses(),
+  ]);
+
+  return tickers.reduce((acc: any, ticker: any, index: number) => ({
+    ...acc,
+    [utils.toAscii(ticker)]: utils.toAscii(addresses[index]),
+  }), {});
 }
