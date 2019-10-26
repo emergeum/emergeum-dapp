@@ -2,13 +2,40 @@ import axios, { AxiosInstance } from "axios";
 // @ts-ignore
 import contract from 'truffle-contract';
 import utils from 'web3-utils';
+import Eth from 'web3-eth';
 import AssetsRegistryFactory from 'emergeum-assets-registry/build/contracts/AssetsRegistryFactory.json';
 import AssetsRegistry from 'emergeum-assets-registry/build/contracts/AssetsRegistry.json';
+// @ts-ignore
+import ProviderEngine from 'web3-provider-engine';
+// @ts-ignore
+import DefaultFixture from 'web3-provider-engine/subproviders/default-fixture';
+// @ts-ignore
+import NonceTrackerSubprovider from 'web3-provider-engine/subproviders/nonce-tracker';
+// @ts-ignore
+import CacheSubprovider from 'web3-provider-engine/subproviders/cache';
+// @ts-ignore
+import SubscriptionSubprovider from 'web3-provider-engine/subproviders/subscriptions';
+// @ts-ignore
+import InflightCacheSubprovider from 'web3-provider-engine/subproviders/inflight-cache';
+// @ts-ignore
+import SanitizingSubprovider from 'web3-provider-engine/subproviders/sanitizer';
 import { IAssetData, IGasPrices, IParsedTx } from "./types";
 import { isNullAddress } from './utilities';
+// @ts-ignore
+import WalletConnectSubprovider from './wallet-connect-subprovider';
+// @ts-ignore
+import InfuraSubprovider from 'web3-provider-engine/subproviders/infura';
+// @ts-ignore
+import FetchSubprovider from 'web3-provider-engine/subproviders/fetch';
+// @ts-ignore
+import WebSocketSubprovider from 'web3-provider-engine/subproviders/websocket';
+// @ts-ignore
+import FilterSubprovider from 'web3-provider-engine/subproviders/filters';
 
 let assetsRegistry: any;
 let assetsRegistryFactory: any;
+let provider: any;
+let eth: any;
 
 const api: AxiosInstance = axios.create({
   baseURL: "https://ethereum-api.xyz",
@@ -19,12 +46,102 @@ const api: AxiosInstance = axios.create({
   }
 });
 
-async function initProvider() {
-  // @ts-ignore
-  const provider = window.ethereum;
+function createDataSubprovider(connectionType: string, rpcUrl: string) {
+  // default to infura
+  if (!connectionType) {
+    return new InfuraSubprovider()
+  }
+  if (connectionType === 'http') {
+    return new FetchSubprovider({ rpcUrl })
+  }
+  if (connectionType === 'ws') {
+    return new WebSocketSubprovider({ rpcUrl })
+  }
 
-  if (provider && !provider.selectedAddress) {
-    await provider.enable();
+  throw new Error(`ProviderEngine - unrecognized connectionType "${connectionType}"`)
+}
+
+function getConnectionType(rpcUrl: string) {
+  if (!rpcUrl) {
+    return undefined;
+  }
+
+  const protocol = rpcUrl.split(':')[0].toLowerCase()
+  switch (protocol) {
+    case 'http':
+    case 'https':
+      return 'http'
+    case 'ws':
+    case 'wss':
+      return 'ws'
+    default:
+      throw new Error(`ProviderEngine - unrecognized protocol in "${rpcUrl}"`)
+  }
+}
+
+function getEth() {
+  if (!eth) {
+    // @ts-ignore
+    eth = new Eth(getProvider());
+  }
+
+  return eth;
+}
+
+async function getAccounts() {
+  const asd = await getEth().getAccounts();
+  console.log(asd)
+  return asd;
+}
+
+function initWalletConnectProvider(rpcUrl: string) {
+  const connectionType = getConnectionType(rpcUrl);
+  const engine = new ProviderEngine();
+
+  // static
+  const staticSubprovider = new DefaultFixture()
+  engine.addProvider(staticSubprovider)
+
+  // nonce tracker
+  engine.addProvider(new NonceTrackerSubprovider())
+
+  // sanitization
+  const sanitizer = new SanitizingSubprovider()
+  engine.addProvider(sanitizer)
+
+  // cache layer
+  const cacheSubprovider = new CacheSubprovider()
+  engine.addProvider(cacheSubprovider)
+
+  // filters + subscriptions
+  // only polyfill if not websockets
+  if (connectionType !== 'ws') {
+    engine.addProvider(new SubscriptionSubprovider())
+    engine.addProvider(new FilterSubprovider())
+  }
+
+  // inflight cache
+  const inflightCache = new InflightCacheSubprovider()
+  engine.addProvider(inflightCache)
+
+  engine.addProvider(
+      new WalletConnectSubprovider({
+        connector: window.walletConnector,
+      })
+  );
+
+  // data source
+  const dataSubprovider = createDataSubprovider(connectionType as string, rpcUrl)
+  engine.addProvider(dataSubprovider)
+
+  engine.start();
+
+  return engine;
+}
+
+function getProvider() {
+  if (!provider) {
+    provider = initWalletConnectProvider('https://rinkeby.infura.io/v3/42b3b5fb8da041be9065aad61239f7f0');
   }
 
   return provider;
@@ -72,15 +189,19 @@ export const apiGetGasPrices = async (): Promise<IGasPrices> => {
 export async function getAssetsRegistry() {
   if (assetsRegistry === undefined) {
     const factory = await getAssetsRegistryFactory();
-    const provider = await initProvider();
-    const registry = await factory.registries(provider.selectedAddress);
+    const provider = getProvider();
+    const [address] = await getAccounts();
+
+    console.log(address);
+
+    const registry = await factory.registries(address);
 
     if (isNullAddress(registry)) {
       assetsRegistry = null;
     } else {
       const instance = contract(AssetsRegistry);
 
-      instance.defaults({ from: provider.selectedAddress });
+      instance.defaults({ from: address });
       instance.setProvider(provider);
       assetsRegistry = await instance.at(registry);
     }
@@ -92,9 +213,12 @@ export async function getAssetsRegistry() {
 export async function getAssetsRegistryFactory() {
   if (!assetsRegistryFactory) {
     const instance = contract(AssetsRegistryFactory);
-    const provider = await initProvider();
+    const provider = getProvider();
+    const [address] = await getAccounts();
 
-    instance.defaults({ from: provider.selectedAddress });
+    console.log(address)
+
+    instance.defaults({ from: address });
     instance.setProvider(provider);
     assetsRegistryFactory = await instance.deployed();
   }
@@ -104,8 +228,25 @@ export async function getAssetsRegistryFactory() {
 
 export async function createRegistry(map = {}) {
   const factory = await getAssetsRegistryFactory();
-  // @ts-ignore
-  const [tickers, addresses] = Object.entries(map).reduce(([tickerAcc, addressAcc], [ticker, address]) => [[...tickerAcc, utils.fromAscii(ticker)], [...addressAcc, utils.fromAscii(address)]], [[], []]);
+  const [tickers, addresses] = Object.entries(map).reduce(([tickerAcc, addressAcc], [ticker, address]) => [[...tickerAcc, utils.fromAscii(ticker)], [...addressAcc, utils.fromAscii(address as string)]], [[], []]);
 
   await factory.newRegistry(tickers, addresses);
+}
+
+export async function getTickers() {
+  const registry = await getAssetsRegistry();
+
+  if (!registry) {
+    return null;
+  }
+
+  const [tickers, addresses] = await Promise.all([
+    registry.getTickers(),
+    registry.getReserveAddresses(),
+  ]);
+
+  return tickers.reduce((acc: any, ticker: any, index: number) => ({
+    ...acc,
+    [utils.toAscii(ticker)]: utils.toAscii(addresses[index]),
+  }), {});
 }
