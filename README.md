@@ -1,1 +1,1 @@
-# Emergeum
+# emergeum-dapp
