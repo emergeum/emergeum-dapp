@@ -14,6 +14,7 @@ const AccountAssets = (props: any) => {
   };
 
   let nativeCurrency: IAssetData = defaultNativeCurrency;
+  console.log("===1: " + nativeCurrency.balance); // tslint:disable-line
   let tokens: IAssetData[] = [];
   if (assets && assets.length) {
     const filteredNativeCurrency = assets.filter((asset: IAssetData) =>
@@ -25,6 +26,7 @@ const AccountAssets = (props: any) => {
       filteredNativeCurrency && filteredNativeCurrency.length
         ? filteredNativeCurrency[0]
         : defaultNativeCurrency;
+    console.log("===2: " + nativeCurrency.balance); // tslint:disable-line
     tokens = assets.filter((asset: IAssetData) =>
       asset && asset.symbol
         ? asset.symbol.toLowerCase() !== nativeCurrency.symbol.toLowerCase()

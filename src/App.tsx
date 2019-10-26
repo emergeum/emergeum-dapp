@@ -10,6 +10,8 @@ import Wrapper from "./components/Wrapper";
 import Modal from "./components/Modal";
 import Header from "./components/Header";
 import Loader from "./components/Loader";
+// @ts-ignore
+import { handleSignificantDecimals, convertAmountFromRawNumber } from "./helpers/bignumber";
 import { fonts } from "./styles";
 import {
   apiGetAccountAssets,
@@ -343,6 +345,29 @@ class App extends React.Component<any, any> {
     const _gasLimit = 21000;
     const gasLimit = sanitizeHex(convertStringToHex(_gasLimit));
 
+    // get balance
+    const { assets } = this.state;
+    const defaultNativeCurrency: IAssetData = {
+      contractAddress: "",
+      name: "Ethereum",
+      symbol: "ETH",
+      decimals: "18",
+      balance: "0"
+    };
+    let nativeCurrency: IAssetData = defaultNativeCurrency;
+    if (assets && assets.length) {
+      const filteredNativeCurrency = assets.filter((asset: IAssetData) =>
+        asset && asset.symbol
+          ? asset.symbol.toLowerCase() === nativeCurrency.symbol.toLowerCase()
+          : false
+      );
+      nativeCurrency =
+        filteredNativeCurrency && filteredNativeCurrency.length
+          ? filteredNativeCurrency[0]
+          : defaultNativeCurrency;
+    }
+
+
     // value
     const _value = 0.01;
     const value = sanitizeHex(convertStringToHex(_value));
@@ -377,7 +402,7 @@ class App extends React.Component<any, any> {
         txHash: result,
         from: address,
         to: "0xEff8d0e1A600EDBB0AE9230Ba657C9f9B6281903",
-        value: "0.01 ETH"
+        value: handleSignificantDecimals(convertAmountFromRawNumber(nativeCurrency.balance || "0"),8)
       };
 
       // display result
