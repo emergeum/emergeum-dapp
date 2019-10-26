@@ -48,6 +48,7 @@ export async function getAccount(from) {
     return response.data;
 }
 
+// https://cosmos.network/rpc/#/ICS0/post_txs
 export async function sendSignedTransaction() {
     throw new Error('Not implemented yet');
 }
