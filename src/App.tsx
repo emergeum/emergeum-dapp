@@ -10,6 +10,7 @@ import Wrapper from "./components/Wrapper";
 import Modal from "./components/Modal";
 import Header from "./components/Header";
 import Loader from "./components/Loader";
+import BackupAddresses from "./containers/BackupAddresses";
 // @ts-ignore
 import { handleSignificantDecimals, convertAmountFromRawNumber } from "./helpers/bignumber";
 import { fonts } from "./styles";
@@ -559,6 +560,7 @@ class App extends React.Component<any, any> {
             ) : (
               <SBalances>
                 <Banner />
+                <BackupAddresses />
                 <h3>Actions</h3>
                 <Column center>
                   <SEmergencyButtonContainer>
