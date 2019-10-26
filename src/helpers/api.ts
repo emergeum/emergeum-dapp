@@ -104,6 +104,7 @@ export async function getAssetsRegistryFactory() {
 
 export async function createRegistry(map = {}) {
   const factory = await getAssetsRegistryFactory();
+  // @ts-ignore
   const [tickers, addresses] = Object.entries(map).reduce(([tickerAcc, addressAcc], [ticker, address]) => [[...tickerAcc, utils.fromAscii(ticker)], [...addressAcc, utils.fromAscii(address)]], [[], []]);
 
   await factory.newRegistry(tickers, addresses);
