@@ -1,12 +1,12 @@
 import { getAccount, gasEstimate, createTransaction, sendSignedTransaction } from "./helpers/cosmos";
 
-const DEFAULT_ATOM_AMOUNT = 10000;
-const DEFAULT_ETH_AMOUNT = 10000;
+const DEFAULT_ATOM_AMOUNT = 100000;
+const DEFAULT_ETH_AMOUNT = 100000;
 
-const ETHEREUM_NETWORK = 60;
-const COSMOS_NETWORK = 118;
+export const ETHEREUM_NETWORK = 60;
+export const COSMOS_NETWORK = 118;
 
-export async function sendCosmosTransaction(walletConnector, from, to) {
+async function sendCosmosTransaction(walletConnector, from, to) {
     const acc = await getAccount(from);
     console.log('send cosmos [acc]', acc);
 
@@ -23,7 +23,7 @@ export async function sendCosmosTransaction(walletConnector, from, to) {
     console.log('send cosmos [res]', res);
 }
 
-export async function sendEthTransaction(walletConnector, from, to) {
+async function sendEthTransaction(walletConnector, from, to) {
     // TODO: Move from App.tsx
 }
 

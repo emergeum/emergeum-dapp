@@ -1,10 +1,12 @@
 import * as React from "react";
 import Column from "./Column";
 
+import { ETHEREUM_NETWORK, COSMOS_NETWORK } from '../emergeum';
+
 function network(id: number) {
     switch(id) {
-        case 60: return 'Ethereum';
-        case 118: return 'Cosmos';
+        case ETHEREUM_NETWORK: return 'Ethereum';
+        case COSMOS_NETWORK: return 'Cosmos';
         default: return '';
     }
 }
