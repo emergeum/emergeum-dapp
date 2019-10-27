@@ -25,7 +25,8 @@ import {
   sanitizeHex,
   hashPersonalMessage,
   recoverPublicKey,
-  recoverPersonalSignature
+  recoverPersonalSignature,
+  getNetworkIdByTicker,
 } from "./helpers/utilities";
 import {
   convertAmountToRawNumber,
@@ -118,24 +119,6 @@ const SKey = styled.div`
 const SValue = styled.div`
   width: 70%;
   font-family: monospace;
-`;
-
-const SEmergencyButtonContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-`;
-
-const SEmergencyButton = styled(Button)`
-  background-color: red;
-  border-radius: 8px;
-  font-size: ${fonts.size.medium};
-  height: 44px;
-  width: 100%;
-  max-width: 175px;
-  margin: 12px;
 `;
 
 interface IAppState {
@@ -245,25 +228,17 @@ class App extends React.Component<any, any> {
     if (walletConnector.connected) {
       const { chainId, accounts } = walletConnector;
       const address = accounts[0];
-      const allAddresses: Account[] = [];
-      walletConnector.getAccounts().then(result => { const arr: Account[] = []; // tslint:disable-line
-        result.forEach(function (value) { if (value.network === 60 || value.network === 118) { arr.push(value); } // tslint:disable-line
-        });  // tslint:disable-line
-        this.setState({ // tslint:disable-line
-          allAddresses: arr // tslint:disable-line
-        }); // tslint:disable-line
-      }).catch(error => { console.error(error); });  // tslint:disable-line
+
       this.setState({
         connected: true,
         chainId,
         accounts,
         address,
-        allAddresses
+        allAddresses: walletConnector.accounts,
       });
     }
 
     this.setState({ walletConnector });
-    console.log(this.state.allAddresses); // tslint:disable-line
   };
 
   public killSession = async () => {
@@ -280,15 +255,17 @@ class App extends React.Component<any, any> {
 
   public onConnect = async (payload: IInternalEvent) => {
     const { chainId, accounts } = payload.params[0];
+    const { walletConnector } = this.state;
     const address = accounts[0];
     await this.setState({
       connected: true,
       chainId,
       accounts,
-      address
+      address,
+      // @ts-ignore
+      allAddresses: walletConnector.accounts,
     });
     WalletConnectQRCodeModal.close();
-    this.getAccountAssets();
   };
 
   public onDisconnect = async () => {
@@ -319,8 +296,16 @@ class App extends React.Component<any, any> {
   public toggleModal = () =>
     this.setState({ showModal: !this.state.showModal });
 
-  public transfer = async () => {
+  public transfer = async (backupAddresses: any) => {
     const { walletConnector, address, chainId } = this.state;
+
+    console.log(backupAddresses)
+    // @ts-ignore
+    const eth = backupAddresses.find(it => it.ticker === 'ETH');
+
+    console.log(eth)
+
+    getNetworkIdByTicker(eth.ticker);
 
     if (!walletConnector) {
       return;
@@ -329,16 +314,8 @@ class App extends React.Component<any, any> {
     // from
     const from = address;
 
-    // to
-    const to = address;
-
-    // walletConnector.getAccounts().then(result => { result.forEach(function (value) { if (value.network === 60 || value.network === 118) { console.log('address: ' + value.address + ' network: ' + value.network); } }); }).catch(error => { console.error(error); });  // tslint:disable-line
-    // nonce
-    const _nonce = await apiGetAccountNonce(address, chainId);
-    const nonce = sanitizeHex(convertStringToHex(_nonce));
-
     // gasPrice
-    const gasPrices = await apiGetGasPrices();
+    const gasPrices = await apiGetGasPrices(chainId);
     const _gasPrice = gasPrices.slow.price;
     const gasPrice = sanitizeHex(
       convertStringToHex(convertAmountToRawNumber(_gasPrice, 9))
@@ -358,13 +335,14 @@ class App extends React.Component<any, any> {
     // test transaction
     const tx = {
       from,
-      to,
-      nonce,
       gasPrice,
       gasLimit,
       value,
-      data
+      data,
+      to: eth.address
     };
+
+    console.log(tx);
 
     try {
       // open modal
@@ -415,7 +393,7 @@ class App extends React.Component<any, any> {
     const nonce = sanitizeHex(convertStringToHex(_nonce));
 
     // gasPrice
-    const gasPrices = await apiGetGasPrices();
+    const gasPrices = await apiGetGasPrices(chainId);
     const _gasPrice = gasPrices.slow.price;
     const gasPrice = sanitizeHex(
       convertStringToHex(convertAmountToRawNumber(_gasPrice, 9))
@@ -702,7 +680,6 @@ class App extends React.Component<any, any> {
       showModal,
       pendingRequest,
       result,
-      allAddresses
     } = this.state;
     return (
       <SLayout>
@@ -734,15 +711,8 @@ class App extends React.Component<any, any> {
             ) : (
               <SBalances>
                 <Banner />
-                <BackupAddresses />
+                <BackupAddresses transfer={this.transfer}/>
                 <h3>Actions</h3>
-                <Column center>
-                  <SEmergencyButtonContainer>
-                    <SEmergencyButton left onClick={this.transfer}>
-                      {"Transfer"}
-                    </SEmergencyButton>
-                  </SEmergencyButtonContainer>
-                </Column>
                 <h3>Balances</h3>
                 {!fetching ? (
                   <AccountAssets chainId={chainId} assets={assets} />
@@ -753,10 +723,6 @@ class App extends React.Component<any, any> {
                     </SContainer>
                   </Column>
                 )}
-                <h6>Network {allAddresses && allAddresses.length && allAddresses[0].network}</h6>
-                <h6>Address {allAddresses && allAddresses.length && allAddresses[0].address}</h6>
-                <h6>Network {allAddresses && allAddresses.length && allAddresses[1].network}</h6>
-                <h6>Address {allAddresses && allAddresses.length && allAddresses[1].address}</h6>
               </SBalances>
             )}
           </SContent>

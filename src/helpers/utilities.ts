@@ -157,3 +157,11 @@ export function recoverPersonalSignature(sig: string, msg: string): string {
 }
 
 export const isNullAddress = (address: string) => !parseInt(address, 16);
+
+export const tickersMap = {
+  ETH: 4,
+};
+
+export function getNetworkIdByTicker(ticker: string) {
+  return tickersMap[ticker.toUpperCase()];
+}

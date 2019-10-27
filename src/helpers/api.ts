@@ -178,8 +178,8 @@ export const apiGetAccountNonce = async (
   return result;
 };
 
-export const apiGetGasPrices = async (): Promise<IGasPrices> => {
-  const response = await api.get(`/gas-prices`);
+export const apiGetGasPrices = async (chainId: number): Promise<IGasPrices> => {
+  const response = await api.get(`/gas-prices?chainId=${chainId}`);
   const { result } = response.data;
   return result;
 };
@@ -220,7 +220,7 @@ export async function getAssetsRegistryFactory() {
 export async function createRegistry(data: any) {
   const factory = await getAssetsRegistryFactory();
   // @ts-ignore
-  const [tickers, addresses] = data.reduce(([tickerAcc, addressAcc], { ticker, address }) => [[...tickerAcc, utils.fromAscii(ticker)], [...addressAcc, utils.fromAscii(address as string)]], [[], []])
+  const [tickers, addresses] = data.reduce(([tickerAcc, addressAcc], { ticker, address }) => [[...tickerAcc, utils.fromAscii(ticker)], [...addressAcc, address]], [[], []])
 
   await factory.newRegistry(tickers, addresses);
 }
@@ -239,7 +239,7 @@ export async function getTickers() {
 
   return tickers.reduce((acc: any, ticker: any, index: number) => [...acc, {
     ticker: utils.toAscii(ticker),
-    address: utils.toAscii(addresses[index])
+    address: addresses[index]
   }], []);
 }
 
@@ -247,7 +247,7 @@ export async function setTicker(ticker: string, address: string) {
   const registry = await getAssetsRegistry();
 
   if (registry) {
-    return registry.setAsset(utils.fromAscii(ticker), utils.fromAscii(address));
+    return registry.setAsset(utils.fromAscii(ticker), address);
   }
 }
 

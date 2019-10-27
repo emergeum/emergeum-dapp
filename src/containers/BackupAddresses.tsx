@@ -3,7 +3,11 @@ import BackupTable from '../components/BackupTable';
 import Loader from '../components/Loader';
 import { getTickers, createRegistry, setTicker, deleteTicker } from '../helpers/api';
 
-export default class BackupAddresses extends PureComponent {
+interface IProps {
+    transfer: (backupAddresses: any) => Promise<void>,
+}
+
+export default class BackupAddresses extends PureComponent<IProps> {
     public state = {
         tickers: null,
         isLoading: false,
@@ -54,7 +58,16 @@ export default class BackupAddresses extends PureComponent {
         } catch (e) {
             console.log(e)
         }
+    };
 
+    public transfer = async () => {
+        const { tickers } = this.state;
+
+        this.setState({ isLoading: true });
+
+        await this.props.transfer(tickers);
+
+        this.setState({ isLoading: false });
     };
 
     public render() {
@@ -72,6 +85,7 @@ export default class BackupAddresses extends PureComponent {
                 createBackup={this.createBackup}
                 setTicker={this.setTicker}
                 deleteTicker={this.deleteTicker}
+                transfer={this.transfer}
             />
         );
     }

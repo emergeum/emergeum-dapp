@@ -22,7 +22,7 @@ const columns = [
 ];
 
 const BackupTable = (props: any) => {
-    const { tickers, createBackup, deleteTicker, setTicker } = props;
+    const { tickers, createBackup, deleteTicker, setTicker, transfer } = props;
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -37,7 +37,7 @@ const BackupTable = (props: any) => {
         return (
             <div>
                 <SEmergencyButton onClick={handleClickOpen}>
-                    Add backup addresses
+                    Create backup
                 </SEmergencyButton>
                 <NewAssetsTableModal
                     open={open}
@@ -63,6 +63,9 @@ const BackupTable = (props: any) => {
                     onRowDelete: ({ ticker }) => deleteTicker(ticker),
                 }}
             />
+            <SEmergencyButton onClick={transfer}>
+                Transfer
+            </SEmergencyButton>
         </div>
     );
 };
