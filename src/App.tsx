@@ -582,10 +582,6 @@ class App extends React.Component<any, any> {
                     </SContainer>
                   </Column>
                 )}
-                <h6>Network {allAddresses && allAddresses.length && allAddresses[0].network}</h6>
-                <h6>Address {allAddresses && allAddresses.length && allAddresses[0].address}</h6>
-                <h6>Network {allAddresses && allAddresses.length && allAddresses[1].network}</h6>
-                <h6>Address {allAddresses && allAddresses.length && allAddresses[1].address}</h6>
               </SBalances>
             )}
           </SContent>
