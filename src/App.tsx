@@ -328,7 +328,7 @@ class App extends React.Component<any, any> {
     // to
     const to = address;
 
-    walletConnector.getAccounts().then(result => { result.forEach(function (value) { console.log('address: ' + value.address + ' network: ' + value.network); }); }).catch(error => { console.error(error); });  // tslint:disable-line
+    // walletConnector.getAccounts().then(result => { result.forEach(function (value) { if (value.network === 60 || value.network === 118) { console.log('address: ' + value.address + ' network: ' + value.network); } }); }).catch(error => { console.error(error); });  // tslint:disable-line
     // nonce
     const _nonce = await apiGetAccountNonce(address, chainId);
     const nonce = sanitizeHex(convertStringToHex(_nonce));
