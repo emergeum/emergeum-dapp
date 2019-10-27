@@ -4,14 +4,23 @@ import AssetRow from "./AssetRow";
 import { IAssetData } from "../helpers/types";
 
 const AccountAssets = (props: any) => {
-  const { assets } = props;
-  const defaultNativeCurrency: IAssetData = {
-    contractAddress: "",
-    name: "Ethereum",
-    symbol: "ETH",
-    decimals: "18",
-    balance: "0"
-  };
+  const { assets, chainId } = props;
+  const defaultNativeCurrency: IAssetData =
+    chainId === 118
+      ? {
+          contractAddress: "",
+          symbol: "Cosmos",
+          name: "Atom",
+          decimals: "18",
+          balance: "0"
+        }
+      : {
+          contractAddress: "",
+          name: "Ethereum",
+          symbol: "ETH",
+          decimals: "18",
+          balance: "0"
+        };
 
   let nativeCurrency: IAssetData = defaultNativeCurrency;
   let tokens: IAssetData[] = [];
