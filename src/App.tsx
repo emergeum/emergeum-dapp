@@ -298,18 +298,14 @@ class App extends React.Component<any, any> {
 
   public transfer = async (backupAddresses: any) => {
     const { walletConnector, address, chainId } = this.state;
-
-    console.log(backupAddresses)
     // @ts-ignore
     const eth = backupAddresses.find(it => it.ticker === 'ETH');
 
-    console.log(eth)
-
-    getNetworkIdByTicker(eth.ticker);
-
-    if (!walletConnector) {
+    if (!walletConnector || !eth) {
       return;
     }
+
+    getNetworkIdByTicker(eth.ticker);
 
     // from
     const from = address;

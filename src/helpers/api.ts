@@ -238,7 +238,7 @@ export async function getTickers() {
   ]);
 
   return tickers.reduce((acc: any, ticker: any, index: number) => [...acc, {
-    ticker: utils.toAscii(ticker),
+    ticker: utils.toUtf8(ticker),
     address: addresses[index]
   }], []);
 }
