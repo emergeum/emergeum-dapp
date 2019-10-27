@@ -3,12 +3,7 @@ import axios from "axios";
 const CHAIN_ID = 'cosmoshub-2';
 const GAS_ADJUSTMENT = 2.3;
 
-function Coin ({ amount, denom }) {
-    return ({
-        amount: String(amount),
-        denom
-    })
-}
+const DEFAULT_GAS_PRICE = (2.5e-8).toFixed(9);
 
 const api = axios.create({
     baseURL: "https://stargate.cosmos.network",
@@ -18,24 +13,25 @@ const api = axios.create({
     }
 });
 
-export async function gasEstimate(from, to, accountNumber, sequence, amounts) {
+export async function gasEstimate(from, to, accountNumber, sequence, amount) {
     const tx = {
         base_req: {
-            sequence,
+            chain_id: CHAIN_ID,
             from: from,
             account_number: accountNumber,
-            chain_id: CHAIN_ID,
+            sequence: sequence,
             simulate: true,
             memo: undefined
         },
-        value: {
-            from_address: from,
-            to_address: to,
-            amount: amounts.map(Coin)
-        }
+        amount: [
+            {
+                amount: String(amount),
+                denom: 'uatom'
+            }
+        ]
     };
 
-    const response = await api.post(`/bank/accounts/${from}/transfers`, tx);
+    const response = await api.post(`/bank/accounts/${to}/transfers`, tx);
 
     const { gas_estimate } = response.data;
 
@@ -48,7 +44,35 @@ export async function getAccount(from) {
     return response.data;
 }
 
+export function createTransaction(from, to, accountNumber, sequence, gas, amount) {
+    return {
+        chainId: CHAIN_ID,
+        accountNumber: accountNumber,
+        fee: {
+            amounts: [
+                {
+                    denom: 'uatom',
+                    amount: String(Math.round(DEFAULT_GAS_PRICE * gas))
+                }
+            ],
+            gas: String(gas)
+        },
+        sequence: sequence,
+        sendCoinsMessage: {
+            fromAddress: from,
+            toAddress: to,
+            amounts: [
+                {
+                    denom: 'uatom',
+                    amount: String(amount)
+                }
+            ]
+        }
+    }
+}
+
 // https://cosmos.network/rpc/#/ICS0/post_txs
-export async function sendSignedTransaction() {
-    throw new Error('Not implemented yet');
+export async function sendSignedTransaction(tx) {
+    const response = await api.post(`/txs`, tx);
+    return response.data;
 }
