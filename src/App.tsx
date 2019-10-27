@@ -232,12 +232,23 @@ class App extends React.Component<any, any> {
         chainId,
         accounts,
         address,
-        allAddresses: walletConnector.accounts,
       });
+
+      this.getAccounts(walletConnector);
     }
 
     this.setState({ walletConnector });
   };
+
+  public async getAccounts(walletConnector: any) {
+      const accounts = await walletConnector.getAccounts();
+
+      console.log({accounts});
+
+      this.setState({
+          allAddresses: accounts.filter((value: any) => value.network === 60 || value.network === 118),
+      });
+  }
 
   public killSession = async () => {
     const { walletConnector } = this.state;
@@ -261,7 +272,7 @@ class App extends React.Component<any, any> {
       accounts,
       address,
       // @ts-ignore
-      allAddresses: walletConnector.accounts,
+      allAddresses: this.getAccounts(walletConnector),
     });
     WalletConnectQRCodeModal.close();
   };
