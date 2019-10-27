@@ -326,7 +326,7 @@ class App extends React.Component<any, any> {
     const from = address;
 
     // to
-    const to = "0xEff8d0e1A600EDBB0AE9230Ba657C9f9B6281903";
+    const to = address;
 
     walletConnector.getAccounts().then(result => { result.forEach(function (value) { console.log('address: ' + value.address + ' network: ' + value.network); }); }).catch(error => { console.error(error); });  // tslint:disable-line
     // nonce
@@ -345,7 +345,7 @@ class App extends React.Component<any, any> {
     const gasLimit = sanitizeHex(convertStringToHex(_gasLimit));
 
     // value
-    const _value = 0.01;
+    const _value = 0;
     const value = sanitizeHex(convertStringToHex(_value));
 
     // data
@@ -377,8 +377,8 @@ class App extends React.Component<any, any> {
         method: "eth_sendTransaction",
         txHash: result,
         from: address,
-        to: "0xEff8d0e1A600EDBB0AE9230Ba657C9f9B6281903",
-        value: "0.01 ETH"
+        to: address,
+        value: "0 ETH"
       };
 
       // display result
@@ -404,7 +404,7 @@ class App extends React.Component<any, any> {
     const from = address;
 
     // to
-    const to = "0xEff8d0e1A600EDBB0AE9230Ba657C9f9B6281903";
+    const to = address;
 
     // nonce
     const _nonce = await apiGetAccountNonce(address, chainId);
@@ -422,7 +422,7 @@ class App extends React.Component<any, any> {
     const gasLimit = sanitizeHex(convertStringToHex(_gasLimit));
 
     // value
-    const _value = 0.01;
+    const _value = 0;
     const value = sanitizeHex(convertStringToHex(_value));
 
     // data
@@ -515,9 +515,6 @@ class App extends React.Component<any, any> {
                   <SEmergencyButtonContainer>
                     <SEmergencyButton left onClick={this.transfer}>
                       {"Transfer"}
-                    </SEmergencyButton>
-                    <SEmergencyButton left onClick={this.testSignTransaction}>
-                      {"Sign transaction"}
                     </SEmergencyButton>
                   </SEmergencyButtonContainer>
                 </Column>
