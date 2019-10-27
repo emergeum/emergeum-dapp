@@ -527,8 +527,8 @@ class App extends React.Component<any, any> {
       fetching,
       showModal,
       pendingRequest,
-      result,
-      allAddresses
+      result
+      // allAddresses
     } = this.state;
     return (
       <SLayout>
