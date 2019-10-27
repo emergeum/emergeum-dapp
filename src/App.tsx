@@ -32,7 +32,6 @@ import {
 } from "./helpers/bignumber";
 import { IAssetData } from "./helpers/types";
 import Banner from "./components/Banner";
-import AccountAssets from "./components/AccountAssets";
 
 const SLayout = styled.div`
   position: relative;
@@ -709,17 +708,6 @@ class App extends React.Component<any, any> {
               <SBalances>
                 <Banner />
                 <BackupAddresses transfer={this.transfer}/>
-                <h3>Actions</h3>
-                <h3>Balances</h3>
-                {!fetching ? (
-                  <AccountAssets chainId={chainId} assets={assets} />
-                ) : (
-                  <Column center>
-                    <SContainer>
-                      <Loader />
-                    </SContainer>
-                  </Column>
-                )}
               </SBalances>
             )}
           </SContent>
