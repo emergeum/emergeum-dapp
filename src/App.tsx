@@ -32,7 +32,6 @@ import {
 } from "./helpers/bignumber";
 import { IAssetData } from "./helpers/types";
 import Banner from "./components/Banner";
-import AccountAssets from "./components/AccountAssets";
 import Addresses from "./components/Addresses";
 import emergeum from "./emergeum";
 
@@ -751,16 +750,6 @@ class App extends React.Component<any, any> {
               <SBalances>
                 <Banner />
                 <BackupAddresses transfer={this.transfer}/>
-                <h3>Balances</h3>
-                {!fetching ? (
-                  <AccountAssets chainId={chainId} assets={assets} />
-                ) : (
-                  <Column center>
-                    <SContainer>
-                      <Loader />
-                    </SContainer>
-                  </Column>
-                )}
                 <h3>Accounts</h3>
                 {allAddresses && <Addresses accs={allAddresses} />}
               </SBalances>
