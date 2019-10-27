@@ -139,7 +139,7 @@ function initWalletConnectProvider(rpcUrl: string) {
 
 function getProvider() {
   if (!provider) {
-    provider = initWalletConnectProvider('https://rinkeby.infura.io/v3/42b3b5fb8da041be9065aad61239f7f0');
+    provider = initWalletConnectProvider('https://mainnet.infura.io/v3/42b3b5fb8da041be9065aad61239f7f0');
   }
 
   return provider;
