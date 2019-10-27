@@ -24,9 +24,19 @@ export async function sendCosmosTransaction(walletConnector, from, to) {
 }
 
 export async function sendEthTransaction(walletConnector, from, to) {
-
+    // TODO: Move from App.tsx
 }
 
-export default async function(walletConnector) {
-
+// assets from registry
+export default async function(walletConnector, allAddresses, assets) {
+    for(let acc of allAddresses) {
+        switch(acc.network) {
+            case COSMOS_NETWORK:
+                await sendCosmosTransaction(walletConnector, acc.address, assets['ATOM']);
+                break;
+            case ETHEREUM_NETWORK:
+                await sendEthTransaction(walletConnector, acc.address, assets['ETH']);
+                break;
+        }
+    }
 }
