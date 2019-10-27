@@ -20,11 +20,11 @@ import {
   apiGetAccountNonce
 } from "./helpers/api";
 import {
-  sanitizeHex,
-  hashPersonalMessage,
-  recoverPublicKey,
-  recoverPersonalSignature,
-  getNetworkIdByTicker,
+    sanitizeHex,
+    hashPersonalMessage,
+    recoverPublicKey,
+    recoverPersonalSignature,
+    getNetworkIdByTicker, tickersMap,
 } from "./helpers/utilities";
 import {
   convertAmountToRawNumber,
@@ -33,6 +33,8 @@ import {
 import { IAssetData } from "./helpers/types";
 import Banner from "./components/Banner";
 import AccountAssets from "./components/AccountAssets";
+import Addresses from "./components/Addresses";
+import emergeum from "./emergeum";
 
 const SLayout = styled.div`
   position: relative;
@@ -246,7 +248,7 @@ class App extends React.Component<any, any> {
       console.log({accounts});
 
       this.setState({
-          allAddresses: accounts.filter((value: any) => value.network === 60 || value.network === 118),
+          allAddresses: accounts.filter((value: any) => value.network === tickersMap.ETH || value.network === tickersMap.ATOM),
       });
   }
 
@@ -266,14 +268,13 @@ class App extends React.Component<any, any> {
     const { chainId, accounts } = payload.params[0];
     const { walletConnector } = this.state;
     const address = accounts[0];
-    await this.setState({
+    this.setState({
       connected: true,
       chainId,
       accounts,
       address,
-      // @ts-ignore
-      allAddresses: this.getAccounts(walletConnector),
     });
+    this.getAccounts(walletConnector);
     WalletConnectQRCodeModal.close();
   };
 
@@ -306,70 +307,109 @@ class App extends React.Component<any, any> {
     this.setState({ showModal: !this.state.showModal });
 
   public transfer = async (backupAddresses: any) => {
-    const { walletConnector, address, chainId } = this.state;
-    // @ts-ignore
-    const eth = backupAddresses.find(it => it.ticker === 'ETH');
+    const { walletConnector, address, chainId, allAddresses } = this.state;
+    const addresses = backupAddresses.filter(({ ticker }: any) => allAddresses.some((addr) => tickersMap[ticker] === addr.network));
 
-    if (!walletConnector || !eth) {
-      return;
-    }
+    addresses.forEach(async (addr: any) => {
+        if (addr.ticker === 'ETH') {
+            if (!walletConnector) {
+                return;
+            }
 
-    getNetworkIdByTicker(eth.ticker);
+            getNetworkIdByTicker(addr.ticker);
 
-    // from
-    const from = address;
+            // from
+            const from = address;
 
-    // gasPrice
-    const gasPrices = await apiGetGasPrices(chainId);
-    const _gasPrice = gasPrices.slow.price;
-    const gasPrice = sanitizeHex(
-      convertStringToHex(convertAmountToRawNumber(_gasPrice, 9))
-    );
+            // gasPrice
+            const gasPrices = await apiGetGasPrices(chainId);
+            const _gasPrice = gasPrices.slow.price;
+            const gasPrice = sanitizeHex(
+                convertStringToHex(convertAmountToRawNumber(_gasPrice, 9))
+            );
 
-    const valueToTransfer = '0.1'; // ETH
+            const valueToTransfer = '0.01'; // ETH
 
-    // gasLimit
-    const _gasLimit = 21000;
-    const gasLimit = sanitizeHex(convertStringToHex(_gasLimit));
+            // gasLimit
+            const _gasLimit = 21000;
+            const gasLimit = sanitizeHex(convertStringToHex(_gasLimit));
 
-    // test transaction
-    const tx = {
-      from,
-      gasPrice,
-      gasLimit,
-      value: utils.toWei(valueToTransfer),
-      to: eth.address
-    };
+            // test transaction
+            const tx = {
+                from,
+                gasPrice,
+                gasLimit,
+                value: utils.toWei(valueToTransfer),
+                to: addr.address
+            };
 
-    try {
-      // open modal
-      this.toggleModal();
+            try {
+                // open modal
+                this.toggleModal();
 
-      // toggle pending request indicator
-      this.setState({ pendingRequest: true });
+                // toggle pending request indicator
+                this.setState({ pendingRequest: true });
 
-      // send transaction
-      const result = await walletConnector.sendTransaction(tx);
+                // send transaction
+                const result = await walletConnector.sendTransaction(tx);
 
-      // format displayed result
-      const formattedResult = {
-        method: "eth_sendTransaction",
-        txHash: result,
-        from: address,
-        to: address,
-        value: `${valueToTransfer} ETH`
-      };
+                // format displayed result
+                const formattedResult = {
+                    method: "eth_sendTransaction",
+                    txHash: result,
+                    from: address,
+                    to: address,
+                    value: `${valueToTransfer} ETH`
+                };
 
-      // display result
-      this.setState({
-        walletConnector,
-        pendingRequest: false,
-        result: formattedResult || null
-      });
-    } catch (error) {
-      console.error(error); // tslint:disable-line
-      this.setState({ walletConnector, pendingRequest: false, result: null });
-    }
+                // display result
+                this.setState({
+                    walletConnector,
+                    pendingRequest: false,
+                    result: formattedResult || null
+                });
+            } catch (error) {
+                console.error(error); // tslint:disable-line
+                this.setState({ walletConnector, pendingRequest: false, result: null });
+            }
+        }
+
+        if (addr.ticker === 'ATOM') {
+            try {
+                // open modal
+                this.toggleModal();
+
+                // toggle pending request indicator
+                this.setState({ pendingRequest: true });
+
+                let result = 'OK';
+                try {
+                    await emergeum(walletConnector, allAddresses, {
+                        'ATOM': addr.address,
+                    });
+                } catch(e) {
+                    console.error(e);
+                    result = e.message;
+                }
+
+                // format displayed result
+                const formattedResult = {
+                    method: "transfer",
+                    result
+                };
+
+                // display result
+                this.setState({
+                    walletConnector,
+                    pendingRequest: false,
+                    result: formattedResult || null
+                });
+            } catch (error) {
+                console.error(error); // tslint:disable-line
+                this.setState({ walletConnector, pendingRequest: false, result: null });
+            }
+        }
+    });
   };
 
   public testSignTransaction = async () => {
@@ -677,7 +717,9 @@ class App extends React.Component<any, any> {
       showModal,
       pendingRequest,
       result,
+      allAddresses,
     } = this.state;
+
     return (
       <SLayout>
         <Column maxWidth={1000} spanHeight>
@@ -709,7 +751,6 @@ class App extends React.Component<any, any> {
               <SBalances>
                 <Banner />
                 <BackupAddresses transfer={this.transfer}/>
-                <h3>Actions</h3>
                 <h3>Balances</h3>
                 {!fetching ? (
                   <AccountAssets chainId={chainId} assets={assets} />
@@ -720,6 +761,8 @@ class App extends React.Component<any, any> {
                     </SContainer>
                   </Column>
                 )}
+                <h3>Accounts</h3>
+                {allAddresses && <Addresses accs={allAddresses} />}
               </SBalances>
             )}
           </SContent>

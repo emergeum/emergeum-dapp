@@ -18,7 +18,7 @@ const Addresses = (props: any) => {
         <Column center>
             <ul>
                 {accs.map((acc: any) => (
-                    <li><b>{network(acc.network)}</b>: {acc.address}</li>
+                    <li key={acc.address}><b>{network(acc.network)}</b>: {acc.address}</li>
                 ))}
             </ul>
         </Column>
