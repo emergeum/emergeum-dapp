@@ -1,4 +1,5 @@
 import * as React from "react";
+import utils from 'web3-utils';
 import { Account } from "@trustwallet/types/src/Account";
 import styled from "styled-components";
 import WalletConnect from "@trustwallet/walletconnect"
@@ -317,28 +318,20 @@ class App extends React.Component<any, any> {
       convertStringToHex(convertAmountToRawNumber(_gasPrice, 9))
     );
 
+    const valueToTransfer = '0.1'; // ETH
+
     // gasLimit
     const _gasLimit = 21000;
     const gasLimit = sanitizeHex(convertStringToHex(_gasLimit));
-
-    // value
-    const _value = 0;
-    const value = sanitizeHex(convertStringToHex(_value));
-
-    // data
-    const data = "0x";
 
     // test transaction
     const tx = {
       from,
       gasPrice,
       gasLimit,
-      value,
-      data,
+      value: utils.toWei(valueToTransfer),
       to: eth.address
     };
-
-    console.log(tx);
 
     try {
       // open modal
@@ -356,7 +349,7 @@ class App extends React.Component<any, any> {
         txHash: result,
         from: address,
         to: address,
-        value: "0 ETH"
+        value: `${valueToTransfer} ETH`
       };
 
       // display result
