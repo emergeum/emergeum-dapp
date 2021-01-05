@@ -30,7 +30,7 @@
     "@trustwallet/walletconnect": "^0.1.16",
     "@walletconnect/browser": "^1.0.0-beta.37",
     "@walletconnect/qrcode-modal": "^1.0.0-beta.37",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "bignumber.js": "^8.0.2",
     "emergeum-assets-registry": "https://github.com/decenterlab/emergeum-assets-registry.git",
     "ethereumjs-util": "^6.1.0",
